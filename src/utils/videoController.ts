@@ -10,10 +10,10 @@ class AudioController {
     analyser: any
     speedBuffer: Buffer
     volumeBuffer: Buffer
-    constructor(video){
+    constructor(video, sampleSize: number){
         this.analyser = this.initAnalyser(video);
-        this.speedBuffer = new Buffer(SAMPLE_SIZE);
-        this.volumeBuffer = new Buffer(SAMPLE_SIZE); 
+        this.speedBuffer = new Buffer(sampleSize);
+        this.volumeBuffer = new Buffer(sampleSize); 
     }
 
     initAnalyser(video){
@@ -79,7 +79,7 @@ export default class VideoController {
 
     onPlay(){
         this.audioController = 
-            this.audioController || new AudioController(this.video);
+            this.audioController || new AudioController(this.video, SAMPLE_SIZE);
         console.log('audioController set: ', this.audioController);
         
         // start loop interval
