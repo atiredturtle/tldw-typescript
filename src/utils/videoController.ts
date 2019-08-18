@@ -3,8 +3,19 @@ import { weightedMedian, arrayAvg, zip, unzip } from './util';
 
 type Maybe<T> = T | void;
 
+interface VideoControllerSettings {
+    regularSpeed: number;
+    silenceSpeed: number;
+    minimumSilenceLen: number; // how many mm is an acceptable silence
+}
+const DEFAULT_SETTINGS : VideoControllerSettings = {
+    regularSpeed: 1,
+    silenceSpeed: 5,
+    minimumSilenceLen: 5,
+}
+
 const SAMPLE_SIZE = 1024;
-const TICK_DURATION = 500; // in ms
+const TICK_DURATION = 10; // in ms
 
 class AudioController {
     analyser: any
@@ -81,16 +92,21 @@ class AudioController {
 export default class VideoController {
     video: HTMLMediaElement
     audioController: Maybe<AudioController>
-    loopInterval: any
+    settings: VideoControllerSettings
+    _loopInterval: any
+    _silenceLen: number
     constructor(video){
         this.video = video;
         this.video.onplay = () => { this.onPlay() };
         this.video.onpause = () => { this.onPause() }; 
         console.log('received video is: ', this.video);
+        this.settings = DEFAULT_SETTINGS;
+        this._silenceLen = 0;
     }
 
     setSpeed(speed: number){
-        this.video.playbackRate = speed;
+        // a speed value of exactly 1 causes clicks
+        this.video.playbackRate = speed === 1 ? speed+0.1 : speed;
     }
     getSpeed():number{
         return this.video.playbackRate
@@ -102,13 +118,13 @@ export default class VideoController {
         console.log('audioController set: ', this.audioController);
         
         // start loop interval
-        this.loopInterval = setInterval(()=>{ this.loop() }, TICK_DURATION);
+        this._loopInterval = setInterval(()=>{ this.loop() }, TICK_DURATION);
     }
 
     onPause(){
         console.log('onPause called');
         // stops loop running
-        clearInterval(this.loopInterval);
+        clearInterval(this._loopInterval);
     }
 
     loop(){
@@ -121,14 +137,16 @@ export default class VideoController {
 
             if (isSilent){
                 // increment silence len (for padding)
-                // if silence length > time threshold
-                // const dynamicSpeed = settings.regularSpeed + (settings.silenceSpeed - settings.regularSpeed)*silenceRatio; 
-                // this.setSpeed(dynamicSpeed);
+                this._silenceLen += TICK_DURATION;
+                if (this._silenceLen > this.settings.minimumSilenceLen){
+                    // interpolate speed
+                    const dynamicSpeed = this.settings.regularSpeed + (this.settings.silenceSpeed - this.settings.regularSpeed) * silenceRatio; 
+                    this.setSpeed(dynamicSpeed);
+                }
             } else{
-                // silence length = 0
-                // this.setSpeed(regularSpeed)
+                this._silenceLen = 0;
+                this.setSpeed(this.settings.regularSpeed);
             }
-
         } else {
             console.log('no audio controller set');
         }
