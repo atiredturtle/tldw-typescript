@@ -1,8 +1,10 @@
 import { Buffer } from './buffer';
+import { weightedMedian, arrayAvg, zip, unzip } from './util';
 
 type Maybe<T> = T | void;
 
 const SAMPLE_SIZE = 1024;
+const TICK_DURATION = 500; // in ms
 
 class AudioController {
     analyser: any
@@ -27,9 +29,7 @@ class AudioController {
         return analyser;
     }
 
-    getVolume():Maybe<number>{
-        if (!this.analyser) return undefined;
-
+    getVolume():number{
         let soundData = new Uint8Array(this.analyser.fftSize);
         this.analyser.getByteTimeDomainData(soundData);
 
@@ -40,37 +40,66 @@ class AudioController {
         }
         return average/50
     }
+
+    getSilenceThreshold():number{
+        const avgVolume = arrayAvg(this.volumeBuffer.get());
+        console.log('average volume: ', avgVolume)
+        // Volumes and Speeds for all below average volume
+        const [cleanVolumes, cleanSpeed]:[number[], number[]] = 
+            unzip(zip(this.volumeBuffer.get(), this.speedBuffer.get())
+            .filter(t => t[0]<avgVolume && t[0]));
+        
+        return weightedMedian(cleanVolumes, cleanSpeed)
+    }
+
+    update(speed: number){
+        // update buffers (needs to get speed from the VideoController)
+        this.speedBuffer.push(speed);
+        this.volumeBuffer.push(this.getVolume());
+    }
 }
 
 export default class VideoController {
     video: HTMLMediaElement
     audioController: Maybe<AudioController>
+    loopInterval: any
     constructor(video){
         this.video = video;
-        this.video.onplay = () => { 
-            this.audioController = 
-                this.audioController || new AudioController(this.video);
-            console.log('audioController set: ', this.audioController);
-            
-            this.start(); // start loop when audio controller created
-        }
-        
+        this.video.onplay = () => { this.onPlay() };
+        this.video.onpause = () => { this.onPause() }; 
         console.log('received video is: ', this.video);
     }
 
     setSpeed(speed: number){
         this.video.playbackRate = speed;
     }
+    getSpeed():number{
+        return this.video.playbackRate
+    }
+
+    onPlay(){
+        this.audioController = 
+            this.audioController || new AudioController(this.video);
+        console.log('audioController set: ', this.audioController);
+        
+        // start loop interval
+        this.loopInterval = setInterval(()=>{ this.loop() }, TICK_DURATION);
+    }
+
+    onPause(){
+        console.log('onPause called');
+        // stops loop running
+        clearInterval(this.loopInterval);
+    }
 
     loop(){
         if (this.audioController){
-            console.log(this.audioController.getVolume())
+            this.audioController.update(this.getSpeed());
+            const ac = this.audioController;
+
+            console.log(ac.getVolume(), ac.getSilenceThreshold())
         } else {
             console.log('no audio controller set');
         }
-    }
-
-    start(){
-        setInterval(()=>{ this.loop() }, 500)
     }
 }

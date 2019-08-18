@@ -1,12 +1,24 @@
 class Buffer {
     buffer: number[]
-    constructor(size){
-        this.buffer = new Array(size).fill(0);
+    capacity: number
+    constructor(capacity){
+        this.buffer = new Array();
+        this.capacity = capacity;
     }
     
+    get():number[]{
+        return this.buffer;
+    }
+
     push(element: number){
-        this.buffer.shift();
-        this.buffer.push(element);
+        // ensure we never have more than capacity length
+        if (this.buffer.length < this.capacity){
+            this.buffer.push(element);
+        } else {
+            this.buffer.shift();
+            this.buffer.push(element);
+        }
+        
     }
 }
 
