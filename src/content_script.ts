@@ -13,10 +13,3 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 const video = document.getElementsByTagName('video')[0];
 
 const vc = new VideoController(video);
-
-const loop = () => {
-    const currVol = vc.getVolume();
-    console.log(currVol);
-}
-
-// setInterval(loop, 100)
