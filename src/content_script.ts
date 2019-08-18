@@ -1,3 +1,4 @@
+import VideoController from "./utils/videoController";
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
     if (msg.color) {
@@ -8,3 +9,14 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
         sendResponse('Color message is none.');
     }
 });
+
+const video = document.getElementsByTagName('video')[0];
+
+const vc = new VideoController(video);
+
+const loop = () => {
+    const currVol = vc.getVolume();
+    console.log(currVol);
+}
+
+// setInterval(loop, 100)

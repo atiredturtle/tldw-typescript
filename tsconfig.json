@@ -7,6 +7,11 @@
         "rootDir": "src",
         "outDir": "dist/js",
         "noEmitOnError": true,
-        "typeRoots": [ "node_modules/@types" ]
+        "typeRoots": [ "node_modules/@types" ],
+        "plugins": [
+            {
+              "name": "typescript-tslint-plugin"
+            }
+          ]
     }
 }
