@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import * as $ from 'jquery';
+import { SettingsConnector } from './utils/settings';
 
 let count = 0;
 
@@ -31,6 +32,14 @@ let count = 0;
 //   });
 
 // });
+
+const settingsConnector = new SettingsConnector();
+$(()=>{
+    const settings = settingsConnector.get();
+    // set the popup text to settings
+    $('#silenceSpeed').val(settings.silenceSpeed);
+    $('#regularSpeed').val(settings.regularSpeed);
+})
 
 function saveSettings(){
   const silenceSpeed = $('#silenceSpeed').val()
