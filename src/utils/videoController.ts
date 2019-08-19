@@ -1,5 +1,6 @@
 import { Buffer } from './buffer';
 import { weightedMedian, arrayAvg, zip, unzip } from './util';
+import { SettingConnect } from './settings';
 
 type Maybe<T> = T | void;
 
@@ -10,7 +11,7 @@ interface VideoControllerSettings {
 }
 const DEFAULT_SETTINGS : VideoControllerSettings = {
     regularSpeed: 1,
-    silenceSpeed: 5,
+    silenceSpeed: 1,
     minimumSilenceLen: 5,
 }
 
@@ -89,10 +90,11 @@ class AudioController {
     }
 }
 
-export default class VideoController {
+class VideoController {
     video: HTMLMediaElement
     audioController: Maybe<AudioController>
     settings: VideoControllerSettings
+    settingConnect: SettingConnect
     _loopInterval: any
     _silenceLen: number
     constructor(video){
@@ -100,8 +102,9 @@ export default class VideoController {
         this.video.onplay = () => { this.onPlay() };
         this.video.onpause = () => { this.onPause() }; 
         console.log('received video is: ', this.video);
-        this.settings = DEFAULT_SETTINGS;
         this._silenceLen = 0;
+        this.settingConnect = new SettingConnect();
+        this.settings = this.settingConnect.get();
     }
 
     setSpeed(speed: number){
@@ -128,6 +131,8 @@ export default class VideoController {
     }
 
     loop(){
+        // updates settings
+        this.settings = this.settingConnect.get();
         if (this.audioController){
             this.audioController.update(this.getSpeed());
             const ac = this.audioController;
@@ -152,3 +157,5 @@ export default class VideoController {
         }
     }
 }
+
+export { VideoController, VideoControllerSettings, DEFAULT_SETTINGS }

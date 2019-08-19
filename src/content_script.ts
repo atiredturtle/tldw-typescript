@@ -1,4 +1,4 @@
-import VideoController from "./utils/videoController";
+import { VideoController } from "./utils/videoController";
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
     if (msg.color) {
@@ -12,4 +12,4 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
 const video = document.getElementsByTagName('video')[0];
 
-const vc = new VideoController(video);
+const vc = new VideoController(video); 
