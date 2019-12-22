@@ -1,6 +1,7 @@
 import { Buffer } from './buffer';
-import { weightedMedian, arrayAvg, zip, unzip } from './util';
+import { weightedMedian, arrayAvg } from './util';
 import { SettingsConnector } from './settings';
+import * as _ from 'lodash';
 
 type Maybe<T> = T | void;
 
@@ -60,8 +61,8 @@ class AudioController {
     _getSilenceThreshold():number{
         const avgVolume = arrayAvg(this.volumeBuffer.get());
         // Volumes and Speeds for all below average volume
-        const [cleanVolumes, cleanSpeed]:[number[], number[]] = 
-            unzip(zip(this.volumeBuffer.get(), this.speedBuffer.get())
+        const [cleanVolumes, cleanSpeed]: number[][] = 
+            _.unzip(_.zip(this.volumeBuffer.get(), this.speedBuffer.get())
             .filter(t => t[0]<avgVolume && t[0]));
 
         if (cleanVolumes.length === 0) return 0; // if no items in buffer, return 0
