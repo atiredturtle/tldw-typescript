@@ -1,4 +1,5 @@
 import { VideoController } from "./utils/videoController";
+import * as $ from 'jquery';
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
     if (msg.color) {
@@ -10,6 +11,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
     }
 });
 
-const video = document.getElementsByTagName('video')[0];
-
-const vc = new VideoController(video); 
+$(() => {
+    const video = document.getElementsByTagName('video')[0];
+    const vc = new VideoController(video); 
+});
