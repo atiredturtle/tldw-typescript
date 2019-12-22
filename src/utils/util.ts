@@ -48,4 +48,19 @@ const arrayAvg = (arr: number[]) : number => {
     return arr.reduce((x,y) => x + y)/arr.length;
 }
 
-export { weightedMedian, arrayAvg };
+
+const zip = <S,T>(xs : S[], ys : T[]):Array<[S,T]> => {
+  return xs.map((e, i) =>[e, ys[i]]);
+};
+
+const unzip = <S,T>(arr : Array<[S,T]>):[S[], T[]] => {
+  let a:S[] = [];
+  let b:T[] = [];
+  arr.forEach(e => {
+    a.push(e[0]);
+    b.push(e[1])
+  })
+  return [a, b];
+}
+
+export { weightedMedian, arrayAvg, zip, unzip};

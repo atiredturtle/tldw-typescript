@@ -1,5 +1,5 @@
 import { Buffer } from './buffer';
-import { weightedMedian, arrayAvg } from './util';
+import { weightedMedian, arrayAvg, zip, unzip } from './util';
 import { SettingsConnector } from './settings';
 import * as _ from 'lodash';
 
@@ -61,13 +61,12 @@ class AudioController {
     _getSilenceThreshold():number{
         const avgVolume = arrayAvg(this.volumeBuffer.get());
         // Volumes and Speeds for all below average volume
-        // @ts-ignore
-        const [cleanVolumes, cleanSpeed]: number[][] = 
-            _.unzip(
-                _.zip(this.volumeBuffer.get(), this.speedBuffer.get())
-                    .filter(t => t[0] && t[0]<avgVolume));
-
-        if (cleanVolumes.length === 0) return 0; // if no items in buffer, return 0
+        const [cleanVolumes, cleanSpeed]: [number[], number[]] = 
+            unzip(
+                zip(this.volumeBuffer.get(), this.speedBuffer.get())
+                    .filter((t:[number, number]) => t[0] && t[0]<avgVolume)
+            );
+        if (cleanVolumes === undefined || cleanVolumes.length === 0) return 0; // if no items in buffer, return 0
         return weightedMedian(cleanVolumes, cleanSpeed)
     }
 
