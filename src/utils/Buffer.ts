@@ -1,7 +1,7 @@
 class Buffer {
     buffer: number[]
     capacity: number
-    constructor(capacity){
+    constructor(capacity: number){
         this.buffer = new Array();
         this.capacity = capacity;
     }

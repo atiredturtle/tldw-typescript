@@ -61,9 +61,11 @@ class AudioController {
     _getSilenceThreshold():number{
         const avgVolume = arrayAvg(this.volumeBuffer.get());
         // Volumes and Speeds for all below average volume
+        // @ts-ignore
         const [cleanVolumes, cleanSpeed]: number[][] = 
-            _.unzip(_.zip(this.volumeBuffer.get(), this.speedBuffer.get())
-            .filter(t => t[0]<avgVolume && t[0]));
+            _.unzip(
+                _.zip(this.volumeBuffer.get(), this.speedBuffer.get())
+                    .filter(t => t[0] && t[0]<avgVolume));
 
         if (cleanVolumes.length === 0) return 0; // if no items in buffer, return 0
         return weightedMedian(cleanVolumes, cleanSpeed)
@@ -103,6 +105,7 @@ class VideoController {
         this.video.onplay = () => { this.onPlay() };
         this.video.onpause = () => { this.onPause() }; 
         console.log('received video is: ', this.video);
+        this.audioController = undefined;
         this._silenceLen = 0;
         this.settingsConnector = new SettingsConnector();
         this.settings = this.settingsConnector.get();

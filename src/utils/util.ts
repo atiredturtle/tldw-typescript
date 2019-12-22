@@ -2,13 +2,13 @@ import * as _ from 'lodash';
 
 function weightedMedian(values: number[], weights: number[]) {
 
-    var midpoint = 0.5 * _.sum(weights);
+  let midpoint = 0.5 * _.sum(weights);
 
-  var cumulativeWeight = 0;
-  var belowMidpointIndex = 0;
+  let cumulativeWeight = 0;
+  let belowMidpointIndex = 0;
 
-  var sortedValues = [];
-  var sortedWeights = [];
+  let sortedValues: number[] = [];
+  let sortedWeights: number[] = [];
 
   values.map(function (value, i) {
 

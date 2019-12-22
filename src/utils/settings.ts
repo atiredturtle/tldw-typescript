@@ -3,7 +3,7 @@ import { VideoControllerSettings, DEFAULT_SETTINGS } from "./videoController";
 class SettingsConnector{
     _settings: VideoControllerSettings
     constructor(){
-        // this._settings = DEFAULT_SETTINGS;
+        this._settings = DEFAULT_SETTINGS;
         this._update();
         chrome.storage.onChanged.addListener(() => { this._update() });
     }
